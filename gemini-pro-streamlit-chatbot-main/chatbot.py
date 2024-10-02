@@ -11,6 +11,10 @@ import pytz
 from gtts import gTTS
 from io import BytesIO
 import base64
+from io import BytesIO
+import speech_recognition as sr
+
+
 # Set the page title and layout
 st.set_page_config(page_title="Chat with Gemini-Pro & Mental Health Assistant", layout="centered")
 
@@ -302,13 +306,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-import streamlit as st
-from gtts import gTTS
-from io import BytesIO
-import speech_recognition as sr
-import sqlite3
-from datetime import datetime
-import pytz
 
 # CSS for chat bubbles
 st.markdown(
