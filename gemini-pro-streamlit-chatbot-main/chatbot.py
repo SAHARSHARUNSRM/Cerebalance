@@ -15,10 +15,9 @@ from io import BytesIO
 import speech_recognition as sr
 
 
-# Set the page title and layout
+
 st.set_page_config(page_title="Chat with Gemini-Pro & Mental Health Assistant", layout="centered")
 
-# Load quotes for the motivational part
 quotes = [
     "The question isn't who is going to let me; it's who is going to stop me. 🚀",
     "It's your dream, don't let it go. 🌟",
@@ -59,7 +58,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Select a random quote and display it in gold color, slightly aligned to the left
+
 selected = random.choice(quotes)
 st.markdown(f"<p style='color: gold; text-align: left; margin-left: 10%;'>{selected}</p>", unsafe_allow_html=True)
 
@@ -114,7 +113,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# Function to create a custom button with an image from file path
+
 def custom_button_with_image_from_path(image_path, button_class, label):
     image = Image.open(image_path)
     return st.markdown(f"""
@@ -203,7 +202,7 @@ def generate_chatbot_response(user_input):
 conn = sqlite3.connect("chat_history.db")
 c = conn.cursor()
 
-# Create a table for storing chat history if it doesn't exist
+
 c.execute('''
     CREATE TABLE IF NOT EXISTS chat_history (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -214,7 +213,6 @@ c.execute('''
 ''')
 conn.commit()
 
-# Function to save chat messages to the SQLite database
 def save_message_to_db(user_role, message):
     try:
         c.execute("INSERT INTO chat_history (user_role, message) VALUES (?, ?)", (user_role, message))
@@ -222,7 +220,7 @@ def save_message_to_db(user_role, message):
     except Exception as e:
         st.error(f"Error saving message to database: {e}")
 
-# Function to fetch chat messages from the database and convert timestamp to Asia/Kolkata timezone
+
 def fetch_messages_from_db():
     try:
         c.execute("SELECT user_role, message, timestamp FROM chat_history ORDER BY timestamp DESC")
@@ -252,14 +250,12 @@ def fetch_messages_from_db():
         st.error(f"Error fetching messages from database: {e}")
         return []
 
-# Function to translate roles between Gemini-Pro and Streamlit terminology
 def translate_role_for_streamlit(user_role):
     if user_role == "model":
         return "assistant"
     else:
         return user_role
 
-# Function to convert text to speech
 def text_to_speech(text):
     tts = gTTS(text)
     audio_file = BytesIO()
@@ -267,16 +263,13 @@ def text_to_speech(text):
     audio_file.seek(0)
     return audio_file
 
-# Function to generate audio download link
 def generate_audio_download_link(audio_file, filename="response.mp3"):
     b64 = base64.b64encode(audio_file.read()).decode()
     return f'<a href="data:audio/mp3;base64,{b64}" download="{filename}">Download Audio</a>'
 
-# Initialize chat session in Streamlit if not already present
 if "chat_session" not in st.session_state:
     st.session_state.chat_session = model.start_chat(history=[])
 
-# CSS for styling sidebar like ChatGPT
 st.markdown(
     """
     <style>
@@ -348,7 +341,6 @@ scroll_js = """
 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# Inject JavaScript for auto-scroll after displaying the chat history
 st.markdown(scroll_js, unsafe_allow_html=True)
 
 import streamlit as st
@@ -356,7 +348,7 @@ from gtts import gTTS
 from io import BytesIO
 import speech_recognition as sr  # Import SpeechRecognition for voice input
 
-# Import necessary for the Gemini model integration
+
   # Assuming the API for generative models is available
 
 genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
@@ -384,7 +376,6 @@ response = model.generate_content([
 
 print(response.text)
 
-# Function to convert text to speech using Google TTS
 def text_to_speech(text):
     tts = gTTS(text)
     audio_file = BytesIO()
@@ -392,30 +383,24 @@ def text_to_speech(text):
     audio_file.seek(0)
     return audio_file
 
-# Function to generate an audio player in Streamlit
 def generate_audio_player(audio_file):
     st.audio(audio_file, format="audio/mp3")
 
-# Initialize chat session in Streamlit if not already present
 if "chat_session" not in st.session_state:
     st.session_state.chat_session = model.start_chat(history=[])
 
-# Sidebar for navigation
 st.sidebar.title("Navigation")
 chat_button = st.sidebar.button("Chat", key="chat_button", help="Start a new chat")
 history_button = st.sidebar.button("Chat History ⟳", key="history_button", help="View chat history")
 
-# Determine which page to display based on selection
 if "page" not in st.session_state:
     st.session_state.page = "Chat"
 
-# Update the page state based on button clicks
 if chat_button:
     st.session_state.page = "Chat"
 elif history_button:
     st.session_state.page = "Chat History ⟳"
 
-# Page logic: Chat Page
 if st.session_state.page == "Chat":
     # Display the chat history
     for message in st.session_state.chat_session.history:
@@ -432,10 +417,8 @@ if st.session_state.page == "Chat":
                 if st.button(f"🔊 Play Response", key=f"play_{message.parts[0].text[:10]}"):
                     generate_audio_player(audio_file)
 
-    # Input field for user's message
     user_prompt = st.chat_input("Ask Gemini-Pro...")
 
-    # Adding voice input functionality
     if st.button("🎤 Speak to Gemini"):
         recognizer = sr.Recognizer()
         with sr.Microphone() as source:
@@ -463,21 +446,20 @@ if st.session_state.page == "Chat":
 
         gemini_response = response.text
 
-        # Display Gemini-Pro's response in yellow bubble
+
         st.markdown(f'<div class="chat-container"><div class="chat-bubble assistant-bubble">{gemini_response}</div></div>', unsafe_allow_html=True)
 
-        # Convert the response to speech
+ 
         audio_file = text_to_speech(gemini_response)
 
-        # Add a button to play audio next to the response
+
         if st.button("🔊 Play Response", key="play_button"):
             generate_audio_player(audio_file)
 
-# Page logic: Chat History Page
+
 elif st.session_state.page == "Chat History ⟳":
     st.title("Chat History")
 
-    # Fetch saved messages from the database
     saved_messages = fetch_messages_from_db()
 
     # Display each message with timestamp in the chat history page
